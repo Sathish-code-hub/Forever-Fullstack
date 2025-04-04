@@ -27,6 +27,11 @@ const ShopContextProvider = (props) => {
             return;            
         }
 
+        if (itemId,size) {
+            toast.success("Added to cart")
+            navigate('/cart')
+        }
+
         let cartData = structuredClone(cartItems);
         
         if (cartData[itemId]) {
