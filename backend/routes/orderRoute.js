@@ -1,7 +1,8 @@
 import express from 'express'
-import  { placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrders, updateStatus, verifyStripe} from '../controllers/orderController.js'
+import  { placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrders, updateStatus, verifyStripe, webhook} from '../controllers/orderController.js'
 import adminAuth from '../middleware/adminAuth.js'
 import authUser from '../middleware/auth.js'
+import stripeWebhook from '../controllers/stripeWebhook.js';
 
 
 const orderRouter = express.Router()
@@ -21,5 +22,8 @@ orderRouter.post('/userorders', authUser, userOrders)
 
 // verify payment
 orderRouter.post('/verifyStripe', authUser,verifyStripe)
+
+// MUST use raw body middleware
+orderRouter.post('/webhook',webhook);
 
 export default orderRouter;

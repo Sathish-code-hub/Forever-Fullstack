@@ -7,12 +7,15 @@ import userRouter from './routes/userRoute.js';
 import productRouter from './routes/productRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
+import bodyParser from "body-parser";
 
 //app config
 const app = express();
 const port = process.env.port || 4000
 connectDB()
 connectCloudinary()
+
+app.use('/api/order/webhook', express.raw({ type: 'application/json' })); // for webhook route
 
 //middlewares
 app.use(express.json())

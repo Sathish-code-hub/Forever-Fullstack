@@ -3,12 +3,43 @@ import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import { Stripe } from "stripe"
 
+
 // gloabal variables
 const currency = 'inr'
 const deliveryCharges = 10;
 
 // gateway initialize 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+const webhook = async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+  
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    } catch (err) {
+      console.log("Webhook signature verification failed:", err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+  
+    // Handle the event
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+  
+      const orderId = session.metadata.orderId;
+  
+      try {
+        await orderModel.findByIdAndUpdate(orderId, { payment: true });
+        console.log(`✅ Order ${orderId} payment confirmed.`);
+      } catch (err) {
+        console.error("❌ Error updating order:", err.message);
+      }
+    }
+  
+    res.status(200).json({ received: true });
+  };
+export { webhook };
 
 
 // using COD
@@ -63,7 +94,7 @@ const placeOrderStripe = async (req,res) => {
         }
 
         const newOrder = new orderModel(orderData)
-        await newOrder.save()
+        await newOrder.save();
 
         const line_items = items.map((item) => ({
             price_data : {
@@ -91,7 +122,10 @@ const placeOrderStripe = async (req,res) => {
             success_url: `${origin}/verify?success=true&orderId=${newOrder._id}`,
             cancel_url: `${origin}/verify?success=false&orderId=${newOrder._id}`,
             line_items,
-            mode: 'payment',            
+            mode: 'payment', 
+            metadata: {
+                orderId: newOrder._id.toString(), // Needed for webhook to identify
+              }           
         })
 
         res.json({success:true, session_url:session.url});
@@ -104,24 +138,25 @@ const placeOrderStripe = async (req,res) => {
 }
 
 // verify stripe
-const verifyStripe = async (req,res) => {
-
-    const { orderId, success, userId} = req.body
+const verifyStripe = async (req, res) => {
+    const { orderId, userId } = req.body;
 
     try {
-        if (success === 'true') {
-            await orderModel.findByIdAndUpdate(orderId, {payment: true});
-            await userModel.findByIdAndUpdate(userId, {cartData: {}})
-            res.json({success: true})
-        }else{
-            await orderModel.findByIdAndDelete(orderId)
-            res.json({success:false})
-        }       
+        const order = await orderModel.findById(orderId);
+        if (!order) return res.json({ success: false, message: "Order not found" });
+
+        if (order.payment) {
+            await userModel.findByIdAndUpdate(userId, { cartData: {} });
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, message: "Payment not confirmed yet" });
+        }
     } catch (error) {
-        console.log(error)
-        res.json({success:false,message:error.message})
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-}
+};
+
 
 
 // using Razorpay
@@ -151,7 +186,7 @@ const userOrders = async (req,res) => {
         
         const { userId } = req.body
 
-        const orders = await orderModel.find({ userId })
+        const orders = await orderModel.find({ userId, payment: true })
         res.json({success:true, orders})
 
     } catch (error) {
