@@ -25,6 +25,7 @@ const Cart = () => {
           }
         }
         setCartData(tempData);
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // 👈 smooth scrol
     }   
     // temporarily store data & using them to display in cart
     

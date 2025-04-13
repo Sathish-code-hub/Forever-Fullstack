@@ -25,6 +25,7 @@ const Product = () => {
 
     useEffect(()=>{
         fetchProductData();
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // 👈 smooth scrol
     },[productId,products])
 
 
