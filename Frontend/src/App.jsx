@@ -16,7 +16,8 @@ import Product from './pages/Product'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify'
-import ScrollToTop from './components/Scrolltotop'
+import Scrolltotop from './components/Scrolltotop'
+
 
 const App = () => {
   return (
@@ -24,7 +25,7 @@ const App = () => {
       <ToastContainer position="top-center" autoClose={2000} />
         <Navbar/>
         <Serachbar/>
-        <ScrollToTop/>
+        <Scrolltotop/>
         <Routes>
             <Route path='/' element={<Home />}/>
             <Route path='/about' element={<About />}/>
