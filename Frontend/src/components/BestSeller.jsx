@@ -10,7 +10,7 @@ const BestSeller = () => {
 
     // to find seller in data from products
     useEffect(()=>{
-        const bestproduct = products.filter((item)=>(item.bestseller));
+        const bestproduct = products.filter((item)=>(item.bestSeller));
         setBestSeller(bestproduct.slice(0,5))
     },[products]);
 

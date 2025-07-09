@@ -18,8 +18,11 @@ const Navbar = () => {
 
     return (
         <div className='flex justify-between items-center py-5 font-medium'>
-
-            <Link to='/'><img src={assets.logo} className='w-28 cursor-pointer'></img></Link>
+            
+            <Link to='/'><img src={assets.logo} className='w-24 cursor-pointer'></img></Link>
+            <a href='https://forever-admin-six-phi.vercel.app' target="_blank" rel="noopener noreferrer">
+                <p className='text-xs px-2 py-1 rounded-xl bg-gray-100'>seller</p>
+            </a>
 
             <ul className='hidden sm:flex gap-6 text-gray-600 '>
 
@@ -46,7 +49,7 @@ const Navbar = () => {
             </ul>
 
             <div className='flex gap-6 items-center'>
-                <img onClick={()=>setShowSearch(true)}src={assets.search_icon} className='w-5 cursor-pointer'></img>
+                <img onClick={()=>setShowSearch(true) ? setShowSearch(true) : navigate('/collection') } src={assets.search_icon} className='w-5 cursor-pointer'></img>
 
                 <div className='group relative'>
                     

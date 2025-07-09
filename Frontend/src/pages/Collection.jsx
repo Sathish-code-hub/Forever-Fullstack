@@ -35,9 +35,16 @@ const Collection = () => {
     const applyFilter = () =>{
         let productsCopy = products.slice();
 
-         //matching products according to search
-         if(showSearch && search){
-            productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
+         //  1. Apply search filtering
+        if (search.trim() !== '') {
+            const keyword = search.toLowerCase().trim();
+    
+            productsCopy = productsCopy.filter(item =>
+                item.name.toLowerCase().includes(keyword) ||
+                item.description.toLowerCase().includes(keyword) ||
+                item.category.toLowerCase().includes(keyword) ||
+                item.subCategory.toLowerCase().includes(keyword)
+            );
         }
         
         if(Category.length>0){
@@ -48,7 +55,8 @@ const Collection = () => {
             productsCopy = productsCopy.filter(item => SubCategory.includes(item.subCategory))
         }
 
-        setFilterproducts(productsCopy);       
+        setFilterproducts(productsCopy);
+               
     }
 
     const sortproduct = () => {
@@ -139,6 +147,9 @@ const Collection = () => {
                                 price={item.price} />
                         ))
                     }
+                    {Filterproducts.length === 0 && (
+                        <p className="text-center text-gray-500 col-span-full">No matching products found.</p>
+                    )}
 
                 </div>
             </div>
